@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from collections import Counter
 
 nutrient_cols = ['moisture_per', 'protein_per', 'fats_per',
@@ -83,6 +84,18 @@ def ingr_nutr_food_find(query, model,df,corpus_embeddings):
        
     return high_nutrients, low_nutrients ingredients
 
-
+def ingredients_category_nutrient_analysis(ingredirents_df)
+   results = []
+   for group in ingredirents_df["category_ru"].dropna().unique():
+      high_df = ingredirents_df[ingredirents_df["category_ru"] == group]
+      low_df = ingredirents_df[ingredirents_df["category_ru"] != group]
+      cliff_feats = {}
+      for col in nutrient_cols:
+          c = cliffs_delta(high_df[col], low_df[col])
+          if c > 0.2:
+              cliff_feats[col] = round(float(c),3)
+      results.append({"category": group, "cliff": dict(sorted(cliff_feats.items(), key=lambda x: (x[0]))),})
+      df_category_nutrients = pd.DataFrame(results)
+      return df_category_nutrients
 
 
