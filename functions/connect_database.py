@@ -121,6 +121,9 @@ def load_data():
     
 	# --- Данные для стандартизации названий нутриентов
     nutrients_transl= pd.read_sql("""SELECT name_in_database, name_ru FROM  nutrients_names """, conn)
-  
+
+    ingredirents_df["omega_3"] = ( ingredirents_df["epa_g"].fillna(0) + ingredirents_df["dha_g"].fillna(0) + ingredirents_df["alpha_linolenic_acid_g"].fillna(0))
+    ingredirents_df["omega_6"] = ( ingredirents_df["linoleic_acid_g"].fillna(0) + ingredirents_df["arachidonic_acid_g"].fillna(0))
+
     return food, disease, standart, ingredirents_df,nutrients_transl
   
