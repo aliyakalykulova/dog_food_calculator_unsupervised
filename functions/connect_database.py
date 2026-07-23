@@ -1,8 +1,58 @@
 import streamlit as st
 import pandas as pd
 import sqlite3
+from sklearn.preprocessing import MinMaxScaler
 
-# ---- Загрузка данных из базы данных и преобразование в формат DataFrame
+numeric_cols = ['moisture', 'protein', 'fat','carbohydrate', 'dha', 'epa', 'epa_dha', 
+				'omega_3', 'omega_6','linoleic_acid', 'alpha_linolenic_acid', 
+				'essential_fatty_acids','taurine', 'l_arginine', 'l_lysine', 
+				'glutamine_glutamate', 'dl_methionine_l_cystine', 'bcaa_total', 
+				'hydroxyproline', 'beta_carotene', 'l_carnitine', 'glucosamine', 
+				'chondroitin_sulfate', 'calcium', 'phospohorus', 'potassium', 'sodium', 
+				'magnesium', 'iron', 'copper', 'zinc', 'chloride', 'sulphur', 
+				'vitamin_a', 'vitamin_c', 'vitamin_d', 'vitamin_e', 'vitamin_k', 
+				'vitamin_b1', 'vitamin_b2','vitamin_b3', 'vitamin_b5', 
+				'vitamin_b6', 'vitamin_b7', 'vitamin_b9', 'vitamin_b12' ]
+
+def prepocess_data(food):
+    numeric_cols = [col for col in numeric_cols if col in food.columns]
+	# Масштабирование отдельно для dry и wet
+	scaler = MinMaxScaler()
+	
+	for food_type in food['food_form'].dropna().unique():
+	   mask = food['food_form'] == food_type
+       food.loc[mask, numeric_cols] = scaler.fit_transform( food.loc[mask, numeric_cols])
+    food = food.rename(
+    columns={"moisture":"moisture_per",
+             'protein': 'protein_per',
+			 'fats': 'fats_per',
+			 'carbohydrate': 'carbohydrate_per',
+			 'calcm': 'calcium_mg',
+			 'phospohorus': 'phosphorus_mg',
+			 'potassm': 'potassium_mg',
+			 'sodm': 'sodium_mg',
+			 'magnesm': 'magnesium_mg',
+			 'iron': 'iron_mg',
+			 'copper': 'copper_mg',
+			 'zinc': 'zinc_mg',
+			 'vitamin_a': 'vitamin_a_mcg',
+			 'vitamin_c': 'vitamin_c_mg',
+			 'vitamin_d': 'vitamin_d_mcg',
+			 'vitamin_e': 'vitamin_e_mg',
+			 'vitamin_k': 'vitamin_k_mcg',
+			 'vitamin_b1': 'vitamin_b1_mg',
+			 'vitamin_b2': 'vitamin_b2_mg',
+			 'vitamin_b6': 'vitamin_b6_mg',
+			 'vitamin_b9': 'vitamin_b9_mcg',
+             'vitamin_b3':'vitamin_b3_mg',
+             'vitamin_b5':'vitamin_b5_mg',
+             'vitamin_b12':'vitamin_b12_mcg',
+			 'beta_carotene': 'beta_carotene_mcg',
+			 'linoleic_acid': 'linoleic_acid_g',
+			 'alpha_linolenic_acid': 'alpha_linolenic_acid_g',
+			 'epa': 'epa_g',
+			 'dha': 'dha_g'})
+    return food
 
 @st.cache_data(show_spinner=False)
 def load_data():
@@ -22,6 +72,7 @@ def load_data():
                         INNER JOIN nutrient_macro ON nutrient_macro.id_dog_food = dog_food.id_dog_food 
                         GROUP BY dog_food.id_dog_food""", conn)
     food["category"] = (food["category"].astype(str).str.split(", "))
+    food=prepocess_data(food)
 
 	# --- Данные о породах собак и связанных заболеваниях
     conn= sqlite3.connect("data_base/dog_breed_disease.db")
