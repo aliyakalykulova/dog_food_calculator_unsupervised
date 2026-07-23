@@ -34,19 +34,27 @@ def compute_ingredient_lift(high_cnt, low_cnt, n_high, n_low):
     df = pd.DataFrame(rows)
     return df.sort_values("lift", ascending=False)
 
-def nutrient_signal(high_df, low_df):
-    if len(high_df) < 2 or len(low_df) < 2:
-        return [], []
+def cliffs_delta(x, y):
+    x = np.asarray(x)
+    y = np.asarray(y)
+    greater = 0
+    less = 0
+    for xi in x:
+        greater += np.sum(xi > y)
+        less += np.sum(xi < y)
+    delta = (greater - less) / (len(x) * len(y))
+    return float(delta)
+
+def nutrient_cliff(high_df, low_df):
     high_nutr = []
     low_nutr = []
     for col in nutrient_cols:
-        d = cohens_d(high_df[col], low_df[col])
-        if d > 0.2:
-            high_nutr.append((col, float(d)))
-        if d < -0.5:
-            low_nutr.append((col, float(d)))
+        delta = cliffs_delta(high_df[col],low_df[col])
+        if delta > 0.2:
+            high_nutr.append({"name": col, "effect": float(delta) })
+        elif delta < -0.2:
+            low_nutr.append({"name": col,"effect": float(delta)})
     return high_nutr, low_nutr
-
 
 def ingr_nutr_food_find(query, model,df,corpus_embeddings):
     query_embedding = model.encode(query, convert_to_tensor=True, normalize_embeddings=True)
@@ -61,7 +69,7 @@ def ingr_nutr_food_find(query, model,df,corpus_embeddings):
     high = result[result["spectral_cluster"].isin(cluster_id)]
     low = result[~result["spectral_cluster"].isin(cluster_id)]
 
-    high_nutr, low_nutr = nutrient_signal(high, low)
+    high_nutr, low_nutr = nutrient_cliff(high, low)
 
     high_cnt = ingredient_freq(high["ingredients"])
     low_cnt = ingredient_freq(low["ingredients"])
