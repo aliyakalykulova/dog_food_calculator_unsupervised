@@ -84,7 +84,7 @@ def ingr_nutr_food_find(query, model,df,corpus_embeddings):
        
     return high_nutrients, low_nutrients ingredients
 
-def ingredients_category_nutrient_analysis(ingredirents_df)
+def ingredients_category_nutrient_analysis(ingredirents_df):
    results = []
    for group in ingredirents_df["category_ru"].dropna().unique():
       high_df = ingredirents_df[ingredirents_df["category_ru"] == group]
