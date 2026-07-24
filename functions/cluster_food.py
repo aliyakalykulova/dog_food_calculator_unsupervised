@@ -19,7 +19,7 @@ def cluster_food(df):
                              random_state=42 )
     labels = sc.fit_predict(X)
     df["spectral_cluster"] = labels
-    return df
+    return df, corpus_embeddings, model
   
 
 
