@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from collections import Counter
-
+from cluster_food import model
 
 nutrient_cols = ['moisture_per', 'protein_per', 'fats_per',
        'carbohydrate_per', 'dha_g', 'epa_g', 'epa_dha', 'omega_3', 'omega_6',
@@ -58,7 +58,7 @@ def nutrient_cliff(high_df, low_df):
             low_nutr.append({"name": col,"effect": float(delta)})
     return high_nutr, low_nutr
 
-def ingr_nutr_food_find(query, model,df,corpus_embeddings):
+def ingr_nutr_food_find(query,df,corpus_embeddings):
     query_embedding = model.encode(query, convert_to_tensor=True, normalize_embeddings=True)
     scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
     df["score"] = scores.cpu().numpy()
