@@ -6,12 +6,10 @@ import numpy as np
 from functions.init_global import init_global
 from functions.connect_database import  load_data
 
-from functions.train_models import build_text_pipeline
-from functions.train_models import build_categorical_encoder
-from functions.train_models import combine_features
-from functions.train_models import train_ingredient_models
-from functions.train_models import train_nutrient_models
-from functions.train_models import  apply_category_masks
+from functions.cluster_food import cluster_food
+from functions.define_ingredients import define_ingredients
+from functions.find_food import ingr_nutr_food_find
+from functions.find_food import ingredients_category_nutrient_analysis
 
 from functions.choose_dog_characteristics import choose_dog_characteristics
 
@@ -31,23 +29,29 @@ from functions.show_results import show_resuts_success
 
 
 main_nutrs=['moisture_per', 'protein_per', 'carbohydrate_per', 'fats_per']
+disorder_keywords = {
+   "Inherited musculoskeletal disorders": "muscle joint bone cartilage jd joint mobility glucosamine arthritis cartilage flexibility",
+   "Inherited gastrointestinal disorders": "digestive digestion stool food sensitivity hypoallergenic stomach digest stomach bowel sensitive diarrhea gut ibs",
+   "Inherited endocrine disorders": "thyroid metabolism weight diabetes insulin hormone glucose",
+   "Inherited eye disorders": "vision eye retina cataract antioxidant sight ocular",
+   "Inherited nervous system disorders": "nervous system stress disrupted sleep brain brain seizure cognitive nerve neuro neurological cognition",
+   "Inherited cardiovascular disorders": "heart hd heart cardiac circulation omega-3 blood pressure vascular",
+   "Inherited skin disorders": "skin coat allergy skin allergy itch coat omega-6 dermatitis eczema flaky",
+   "Inherited immune disorders": "immune defense resistance inflammatory autoimmune",
+   "Inherited urinary and reproductive disorders": " urinary bladder stones urinary bladder kidney renal urine reproductive",
+   "Inherited respiratory disorders": "breath respiratory airway lung cough breathing nasal",
+   "Inherited blood disorders": "anemia blood iron hemoglobin platelets clotting hemophilia",
+   "Aging care":"aging senior mature",
+   "Puppy care":"puppy grow start",
+   "Adult care":"adult immune optimal delicious",
+   "weight management":"weight management overweight",
+   "food sensitivity":"food sensitivity hypoallergenic stomach"	}
+
 
 # ---- Загрузка данных из базы данных (connect_database.py)
 food_df, disease_df, df_standart, ingredirents_df,nutrients_transl= load_data()
 
-# ---- Обучение модели рекомендации ингредиентов (train_models.py)
-vectorizer, svd, X_text_reduced = build_text_pipeline(food_df["description"], n_components=100)
-encoder, X_categorical = build_categorical_encoder(food_df)
-X_categorical=apply_category_masks(X_categorical,encoder)
-X_combined = combine_features(X_text_reduced, X_categorical)
-ingredient_models, frequent_ingredients = train_ingredient_models(food_df, X_combined)
-
-# ---- Обучение модели расчёта количества нутриентов (только влажные корма) (train_models.py)
-vectorizer_wet, svd_wet, X_text_reduced_wet = build_text_pipeline(food_df[food_df["food_form"]=="wet food"]["description"], n_components=100)
-encoder_wet, X_categorical_wet = build_categorical_encoder(food_df[food_df["food_form"]=="wet food"])
-X_categorical_wet=apply_category_masks(X_categorical_wet,encoder_wet)
-X_combined_wet = combine_features(X_text_reduced_wet, X_categorical_wet)
-ridge_models, scalers = train_nutrient_models(food_df[food_df["food_form"]=="wet food"], X_combined_wet)
+food_df, corpus_embeddings = cluster_food(food_df)
 
 # ---- Инициализация глобальных переменных (init_global.py)
 init_global()
@@ -93,8 +97,14 @@ if user_breed:
             st.session_state.kkal_sel=metobolic_energy
             st.session_state.show_result_1 = True
             st.session_state.show_result_2 = False
-
-		 # --- Вычисление рекомендаций ингредиентов и количества нутриентов с помощью обученных моделей (recommend_ingredients_nutrients.py)
+		  
+	     keywords = disorder_keywords.get(disorder_type, selected_disease).lower()  # --- Получение ключевых слов в зависимости от типа заболевания
+         query= age_type_categ ", " + breed_size + "breed size, "+ keywords +", "+disorder_type
+		 high_nutrients, low_nutrients, ingredients= ingr_nutr_food_find(query,df,corpus_embeddings)
+		  
+		 df_category_nutrients = ingredients_category_nutrient_analysis(ingredirents_df)
+         finish_ingr_list, finish_ingr_list_norm_name, maxim_main_nutr, minim_main_nutr = define_ingredients(high_nutr,low_nutr,ingr_rec,ingredirents_df)
+		  
          ingredients_finish,keywords=ingredient_recommendation(ingredient_models,breed_size, age_type_categ,disorder_type, selected_disease,vectorizer,svd,encoder, df_standart)
          nutrient_preds = nutrients_recommendation(vectorizer_wet,keywords,svd_wet,encoder_wet, breed_size, age_type_categ, ridge_models,scalers )
          
