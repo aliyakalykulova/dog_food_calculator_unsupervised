@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from collections import Counter
 
+
 nutrient_cols = ['moisture_per', 'protein_per', 'fats_per',
        'carbohydrate_per', 'dha_g', 'epa_g', 'epa_dha', 'omega_3', 'omega_6',
        'linoleic_acid_g', 'alpha_linolenic_acid_g', 'essential_fatty_acids',
