@@ -15,14 +15,14 @@ def ingredients_limits(ingredirents_df, ingredient_names):
    st.subheader("🌿 Рекомендуемые ингредиенты")
    for ing in ingredient_names:
       st.write("• " + ing.replace("— Обыкновенный",""))
-	   
+      
    proteins=ingredirents_df[ingredirents_df["category_ru"].isin(["Яйца и молочные продукты", "Мясо"])]["full_name_ingredient"].tolist()
    oils=ingredirents_df[ingredirents_df["category_ru"].isin([ "Масло и жир"])]["full_name_ingredient"].tolist()
    carbonates_cer=ingredirents_df[ingredirents_df["category_ru"].isin(["Крупы"])]["full_name_ingredient"].tolist()
    carbonates_veg=ingredirents_df[ingredirents_df["category_ru"].isin(["Овощи и фрукты"])]["full_name_ingredient"].tolist()
    carbonates_grace=ingredirents_df[ingredirents_df["category_ru"].isin(["Зелень и специи"])]["full_name_ingredient"].tolist()
    other=ingredirents_df[ingredirents_df["category_ru"].isin(["Вода, соль и сахар"])]["full_name_ingredient"].tolist()
-	
+   
    st.subheader("Ограничения по количеству ингредиентов (в % от 100 г):")
    ingr_ranges = []
    for ingr in ingredient_names:
@@ -47,12 +47,12 @@ def nutrients_limits(food_df):
    st.subheader("Ограничения по нутриентам:")
    nutr_ranges = {}
    nutr_ranges['moisture_per'] = st.slider(f"{'Влага'}", 0, 100, (65, 95))
-	
+   
    s = food_df[(food_df["food_form"] == "wet food") &(food_df["moisture_per"] > 0.5) ]["protein_per"]
    protein_min=(100-nutr_ranges['moisture_per'][0])*0.25
    protein_min=protein_min if protein_min > s.mean()-s.std() else s.mean()-s.std()
    nutr_ranges['protein_per'] = st.slider(f"{'Белки'}", 0, 100, (int(protein_min), 30))
-	
+   
    s = food_df[(food_df["food_form"] == "wet food") &(food_df["moisture_per"] > 0.5) ]["fats_per"]
    fats_min= (100-nutr_ranges['moisture_per'][0])*0.085
    fats_min=fats_min if fats_min > s.mean()-s.std() else s.mean()-s.std()
@@ -60,7 +60,7 @@ def nutrients_limits(food_df):
    
    carb_max=100-nutr_ranges['protein_per'][0]-nutr_ranges['fats_per'][0]-nutr_ranges['moisture_per'][0]
    nutr_ranges['carbohydrate_per'] = st.slider(f"{'Углеводы'}", 0, 100, (5, int(carb_max)))
-	
+   
    return nutr_ranges
 
 
@@ -77,26 +77,26 @@ def lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges,maximaze_nu
    # --- Вектор b: Содержит граничные значения по нутриентам. Каждый элемент соответствует строке матрицы A
    b = [ val / 100 for nutr in nutr_ranges
          for val in (-nutr_ranges[nutr][0], nutr_ranges[nutr][1]) ]
-	
+   
    # --- Ограничение суммы ингредиентов: Сумма долей всех ингредиентов = 1 (или 100%)
    A_eq = [[1 for _ in ingredient_names]]
    b_eq = [1.0]
-	
+   
    # --- Дополнительные ограничения: индивидуальные лимиты на каждый ингредиент (min, max)
    bounds = [(low/100, high/100) for (low, high) in ingr_ranges]
 
    # --- Интерфейс выбора нутриента(ов) для максимизации
    st.subheader("Что максимизировать?")
    selected_maximize = st.multiselect(
-	            "Выберите нутриенты для максимизации:",
+               "Выберите нутриенты для максимизации:",
                 [ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
-				  for nutr in main_nutrs],
+              for nutr in main_nutrs],
                 default=[ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0]  
-						     for nutr in maximaze_nutrs]  )
+                       for nutr in maximaze_nutrs]  )
    # --- Инициализация глобальной переменной списка нутриентов для максимизации
    if "prev_selected_maximize" not in st.session_state:
       st.session_state.prev_selected_maximize = [nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
-												 for nutr in main_nutrs]
+                                     for nutr in main_nutrs]
    # --- При изменении списка нутриентов для максимизации сбрасывается рассчитанная рецептура 	   
    if selected_maximize != st.session_state.prev_selected_maximize:
       st.session_state.show_result_2 = False

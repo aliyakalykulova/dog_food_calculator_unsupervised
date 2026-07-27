@@ -66,14 +66,14 @@ st_c = standard_care_map.get(age_type_categ)
 if user_breed:
    info = disease_df[disease_df["name_breed"] == user_breed]
    if not info.empty:
-	  # ---- Вывод списка возможных заболеваний в зависимости от породы
+     # ---- Вывод списка возможных заболеваний в зависимости от породы
       diseases = [  dis for dis in info["name_disease"].unique().tolist()
                     if dis not in standard_care_map.values() or dis == st_c]
       selected_disease = st.selectbox("Заболевание:", diseases)
       match = info.loc[info["name_disease"] == selected_disease, "name_disorder"]
       disorder_type = match.iloc[0] if not match.empty else selected_disease
 
-	  # ---- При изменении данных о собаке (порода, заболевание) сбрасываются текущие рекомендации корма 
+     # ---- При изменении данных о собаке (порода, заболевание) сбрасываются текущие рекомендации корма 
       if user_breed != st.session_state.user_breed or selected_disease!= st.session_state.disorder:
          st.session_state.user_breed = user_breed
          st.session_state.disorder = selected_disease
@@ -83,47 +83,47 @@ if user_breed:
       # ---- Кнопка расчёта рекомендаций корма (калории, ингредиенты, нутриенты)
       if st.button("Составить рекомендации"):
          st.session_state.show_result_1 = True
-	 
+    
       if st.session_state.show_result_1:
-	     # ---- Расчёт суточной потребности в калориях по формулам FEDIAF (norm_kcal_nutr.py)
+        # ---- Расчёт суточной потребности в калориях по формулам FEDIAF (norm_kcal_nutr.py)
          kcal =kcal_calculate( age_type_categ, avg_wight)
          metobolic_energy = int(round(st.number_input("Киллокаллории в день", min_value=0.0, step=0.1,  value=round(kcal,1) ),1))
-		 
-		 # --- При изменении значения калорий сбрасывается рассчитанная рецептура корма	
+       
+       # --- При изменении значения калорий сбрасывается рассчитанная рецептура корма	
          if st.session_state.kkal_sel!=metobolic_energy:
             st.session_state.kkal_sel=metobolic_energy
             st.session_state.show_result_1 = True
             st.session_state.show_result_2 = False
-		  
-	     keywords = disorder_keywords.get(disorder_type, selected_disease).lower()  # --- Получение ключевых слов в зависимости от типа заболевания
+        
+        keywords = disorder_keywords.get(disorder_type, selected_disease).lower()  # --- Получение ключевых слов в зависимости от типа заболевания
          query = f"{age_type_categ}, {breed_size} breed size, {keywords}, {disorder_type}"
-		 high_nutrients, low_nutrients, ingredients= ingr_nutr_food_find(query,food_df,corpus_embeddings)
-		  
-		 group_results = ingredients_category_nutrient_analysis(ingredirents_df)
+       high_nutrients, low_nutrients, ingredients= ingr_nutr_food_find(query,food_df,corpus_embeddings)
+        
+       group_results = ingredients_category_nutrient_analysis(ingredirents_df)
          finish_ingr_list, finish_ingr_list_norm_name, maxim_main_nutr, minim_main_nutr = define_ingredients(high_nutrients, low_nutrients,ingredients,ingredirents_df,group_results,df_standart)
-		  
+        
          
          if len(finish_ingr_list)>0: 
-			# ---- Интерфейс для редактирования списка ингредиентов пользователем (ingredients_choose.py)
+         # ---- Интерфейс для редактирования списка ингредиентов пользователем (ingredients_choose.py)
             ingredirents_df, ingredient_names,food = ingredients_choose(ingredirents_df,finish_ingr_list_norm_name)
-			selected_maximize = set(maxim_main_nutr)
+         selected_maximize = set(maxim_main_nutr)
 
-			 
+          
             if ingredient_names:
-			   # ---- Установка пределов (min, max) содержания ингредиентов и нутриентов в корме (parametrs_for_linear_programming.py)
+            # ---- Установка пределов (min, max) содержания ингредиентов и нутриентов в корме (parametrs_for_linear_programming.py)
                ingr_ranges= ingredients_limits(ingredirents_df, ingredient_names)
                nutr_ranges = nutrients_limits(food_df)
-				
-			   # --- При изменении пределов содержания ингредиентов и нутриентов сбрасывается рассчитанная рецептура корма
+            
+            # --- При изменении пределов содержания ингредиентов и нутриентов сбрасывается рассчитанная рецептура корма
                if ingr_ranges != st.session_state.prev_ingr_ranges:
                   st.session_state.show_result_2 = False
                   st.session_state.prev_ingr_ranges = ingr_ranges.copy()
                if nutr_ranges != st.session_state.prev_nutr_ranges:
                   st.session_state.show_result_2 = False
                   st.session_state.prev_nutr_ranges = nutr_ranges.copy()
-	  
-			   # ---- Проверка соотношения ингредиентов и пропорциональная корректировка минимальных и максимальных пределов при нарушении условий
-			   # ---- Проверка условия: сумма минимальных долей ингредиентов < 100, сумма максимальных долей > 100
+     
+            # ---- Проверка соотношения ингредиентов и пропорциональная корректировка минимальных и максимальных пределов при нарушении условий
+            # ---- Проверка условия: сумма минимальных долей ингредиентов < 100, сумма максимальных долей > 100
                lowest=sum([low for (low, high) in ingr_ranges])
                highest=sum([high for (low, high) in ingr_ranges])
                ingr_ranges_2=ingr_ranges
@@ -135,39 +135,39 @@ if user_breed:
                   st.write("Максимальные доли ингредиентов меньше 100%. Значения были пропорционально увеличены.")
                   factor=101/highest
                   ingr_ranges_2=[(low, high*factor) for (low, high) in ingr_ranges]
-				
-			   # --- Подготовка параметров на основе заданных условий для расчёта рецептуры методом линейного программирования (parameters_for_linear_programming.py) 	   
+            
+            # --- Подготовка параметров на основе заданных условий для расчёта рецептуры методом линейного программирования (parameters_for_linear_programming.py) 	   
                A, b, A_eq, b_eq,selected_maximize,f,bounds = lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges_2,selected_maximize,nutrients_transl)
              
-			   # --- Кнопка расчёта рецептуры	
+            # --- Кнопка расчёта рецептуры	
                if st.button("🔍 Рассчитать оптимальный состав"):
                   st.session_state.show_result_2 = True
 
-			
+         
                if st.session_state.show_result_2:
-				  # --- Расчёт рецептуры методом линейного программирования
+              # --- Расчёт рецептуры методом линейного программирования
                   res = linprog(f, A_ub=A, b_ub=b, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
 
-				  # --- Если решение найдено методом линейного программирования  
+              # --- Если решение найдено методом линейного программирования  
                   if res.success:
                      st.success("✅ Решение найдено!")
-					  
-					 # ---- Приведение результатов к удобному формату отображения (общее содержание нутриентов и соотношение ингредиентов)
+                 
+                # ---- Приведение результатов к удобному формату отображения (общее содержание нутриентов и соотношение ингредиентов)
                      nutrients_combo = {nutr: int(round(sum(res.x[i] * food[name][nutr]/100 for i, name in enumerate(ingredient_names)) * 100, 0))
                                        for nutr in main_nutrs}
                      ingredients_combo={name: int(round(val * 100, 0)) for name, val in zip(ingredient_names,res.x)}
                      best_recipe= (ingredients_combo,nutrients_combo)
 
-					 # ---- Отображение результатов (show_results.py)
+                # ---- Отображение результатов (show_results.py)
                      show_resuts_success(best_recipe,food,nutrients_transl,metobolic_energy, age_type_categ,
                                         ingredient_names, ingr_ranges,nutr_ranges)                         
                   else:
-					 # ---- Если решение не найдено, используется комбинаторный метод
-					 # ---- Расчёт рецептуры комбинаторным методом с выбором варианта с минимальным отклонением от нутриентных лимитов (calc_recipe_method_2.py)	 
+                # ---- Если решение не найдено, используется комбинаторный метод
+                # ---- Расчёт рецептуры комбинаторным методом с выбором варианта с минимальным отклонением от нутриентных лимитов (calc_recipe_method_2.py)	 
                      best_recipe=calc_recipe(ingr_ranges_2,nutr_ranges,ingredient_names,food)
                      if best_recipe:
                         st.success("⚙️ Найден состав перебором:")
-					    # ---- Отображение результатов (show_results.py)
+                   # ---- Отображение результатов (show_results.py)
                         show_resuts_success(best_recipe, food, nutrients_transl, metobolic_energy, age_type_categ,
                                             ingredient_names, ingr_ranges,nutr_ranges)
                      else:
