@@ -116,12 +116,10 @@ def ingredients_category_nutrient_analysis(ingredirents_df):
       low_df = ingredirents_df[ingredirents_df["category_ru"] != group]
       cliff_feats = {}
       for col in nutrient_cols:
-          if col not in high_df.columns:
-               st.write(high_df.columns)
-               st.write(col)
-          c = cliffs_delta(high_df[col], low_df[col])
-          if c > 0.2:
-              cliff_feats[col] = round(float(c),3)
+          if col in high_df.columns:
+             c = cliffs_delta(high_df[col], low_df[col])
+             if c > 0.2:
+                 cliff_feats[col] = round(float(c),3)
       group_results[group]=sorted(cliff_feats.items(), key=lambda x: (x[0]))
    return group_results
 
