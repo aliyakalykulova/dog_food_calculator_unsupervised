@@ -74,7 +74,8 @@ def nutrient_cliff(high_df, low_df):
     low_nutr = []
     for col in nutrient_cols:
         if col not in high_df.columns:
-               st.write(high_df)
+               st.write(high_df.columns)
+               st.write(col)
         delta = cliffs_delta(high_df[col],low_df[col])
         if delta > 0.2:
             high_nutr.append({"name": col, "effect": float(delta) })
