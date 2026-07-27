@@ -26,6 +26,7 @@ nutrient_cols = ['moisture_per', 'protein_per', 'fats_per',
        'vitamin_b3_mg', 'vitamin_b5_mg', 'vitamin_b6_mg', 'vitamin_b7',
        'vitamin_b9_mcg', 'vitamin_b12_mcg']
 
+@st.cache_resource
 def cluster_food(df):
     corpus = df["description"].fillna("").tolist()
     corpus_embeddings = model.encode( corpus,
