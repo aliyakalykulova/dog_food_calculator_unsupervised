@@ -15,13 +15,13 @@ numeric_cols = ['moisture', 'protein', 'fat','carbohydrate', 'dha', 'epa', 'epa_
                 'vitamin_b6', 'vitamin_b7', 'vitamin_b9', 'vitamin_b12' ]
 
 def prepocess_data(food):
-    numeric_cols = [col for col in numeric_cols if col in food.columns]
+    numeric_cols_up = [col for col in numeric_cols if col in food.columns]
     # Масштабирование отдельно для dry и wet
     scaler = MinMaxScaler()
     
     for food_type in food['food_form'].dropna().unique():
        mask = food['food_form'] == food_type
-       food.loc[mask, numeric_cols] = scaler.fit_transform( food.loc[mask, numeric_cols])
+       food.loc[mask, numeric_cols_up] = scaler.fit_transform( food.loc[mask, numeric_cols_up])
     food = food.rename(
     columns={"moisture":"moisture_per",
              'protein': 'protein_per',
