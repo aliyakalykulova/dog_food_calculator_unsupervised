@@ -6,7 +6,7 @@ import numpy as np
 from functions.init_global import init_global
 from functions.connect_database import  load_data
 
-from functions.cluster_food import cluster_food
+from functions.cluster_food import find_food
 from functions.define_ingredients import define_ingredients
 from functions.find_food import ingr_nutr_food_find
 from functions.find_food import ingredients_category_nutrient_analysis
