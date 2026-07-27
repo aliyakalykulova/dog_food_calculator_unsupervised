@@ -99,12 +99,10 @@ def ingr_nutr_food_find(query,df,corpus_embeddings):
 
     ingredient_df = compute_ingredient_lift(high_cnt, low_cnt,len(high), len(low))
     ingredient_df = ingredient_df[ingredient_df["lift"] > 2]
-
-    high_nutrients =  [ {"name": n, "effect": d} for n, d in high_nutr ]
-    low_nutrients =  [ {"name": n, "effect": d} for n, d in low_nutr]
+       
     ingredients = [  {"name": r["ingredient"], "lift": r["lift"]} for _, r in ingredient_df.iterrows() ]
        
-    return high_nutrients, low_nutrients ingredients
+    return high_nutr, low_nutr, ingredients
 
 def ingredients_category_nutrient_analysis(ingredirents_df):
    results = []
@@ -117,7 +115,7 @@ def ingredients_category_nutrient_analysis(ingredirents_df):
           if c > 0.2:
               cliff_feats[col] = round(float(c),3)
       results.append({"category": group, "cliff": dict(sorted(cliff_feats.items(), key=lambda x: (x[0]))),})
-      df_category_nutrients = pd.DataFrame(results)
-      return df_category_nutrients
+   df_category_nutrients = pd.DataFrame(results)
+   return df_category_nutrients
 
 
