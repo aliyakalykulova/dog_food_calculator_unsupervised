@@ -46,10 +46,8 @@ disorder_keywords = {
 
 
 # ---- Загрузка данных из базы данных (connect_database.py)
-@st.cache_resource
 food_df, disease_df, df_standart, ingredirents_df,nutrients_transl= load_data()
 
-@st.cache_resource
 food_df, corpus_embeddings = cluster_food(food_df)
 
 # ---- Инициализация глобальных переменных (init_global.py)
