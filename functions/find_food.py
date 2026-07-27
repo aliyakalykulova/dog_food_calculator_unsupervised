@@ -105,7 +105,7 @@ def ingr_nutr_food_find(query,df,corpus_embeddings):
     return high_nutr, low_nutr, ingredients
 
 def ingredients_category_nutrient_analysis(ingredirents_df):
-   results = []
+   group_results = {}
    for group in ingredirents_df["category_ru"].dropna().unique():
       high_df = ingredirents_df[ingredirents_df["category_ru"] == group]
       low_df = ingredirents_df[ingredirents_df["category_ru"] != group]
@@ -114,8 +114,7 @@ def ingredients_category_nutrient_analysis(ingredirents_df):
           c = cliffs_delta(high_df[col], low_df[col])
           if c > 0.2:
               cliff_feats[col] = round(float(c),3)
-      results.append({"category": group, "cliff": dict(sorted(cliff_feats.items(), key=lambda x: (x[0]))),})
-   df_category_nutrients = pd.DataFrame(results)
-   return df_category_nutrients
+      group_results[group]=sorted(cliff_feats.items(), key=lambda x: (x[0]))
+   return group_results
 
 
