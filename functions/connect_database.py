@@ -4,60 +4,60 @@ import sqlite3
 from sklearn.preprocessing import MinMaxScaler
 
 numeric_cols = ['moisture', 'protein', 'fat','carbohydrate', 'dha', 'epa', 'epa_dha', 
-				'omega_3', 'omega_6','linoleic_acid', 'alpha_linolenic_acid', 
-				'essential_fatty_acids','taurine', 'l_arginine', 'l_lysine', 
-				'glutamine_glutamate', 'dl_methionine_l_cystine', 'bcaa_total', 
-				'hydroxyproline', 'beta_carotene', 'l_carnitine', 'glucosamine', 
-				'chondroitin_sulfate', 'calcium', 'phospohorus', 'potassium', 'sodium', 
-				'magnesium', 'iron', 'copper', 'zinc', 'chloride', 'sulphur', 
-				'vitamin_a', 'vitamin_c', 'vitamin_d', 'vitamin_e', 'vitamin_k', 
-				'vitamin_b1', 'vitamin_b2','vitamin_b3', 'vitamin_b5', 
-				'vitamin_b6', 'vitamin_b7', 'vitamin_b9', 'vitamin_b12' ]
+                'omega_3', 'omega_6','linoleic_acid', 'alpha_linolenic_acid', 
+                'essential_fatty_acids','taurine', 'l_arginine', 'l_lysine', 
+                'glutamine_glutamate', 'dl_methionine_l_cystine', 'bcaa_total', 
+                'hydroxyproline', 'beta_carotene', 'l_carnitine', 'glucosamine', 
+                'chondroitin_sulfate', 'calcium', 'phospohorus', 'potassium', 'sodium', 
+                'magnesium', 'iron', 'copper', 'zinc', 'chloride', 'sulphur', 
+                'vitamin_a', 'vitamin_c', 'vitamin_d', 'vitamin_e', 'vitamin_k', 
+                'vitamin_b1', 'vitamin_b2','vitamin_b3', 'vitamin_b5', 
+                'vitamin_b6', 'vitamin_b7', 'vitamin_b9', 'vitamin_b12' ]
 
 def prepocess_data(food):
     numeric_cols = [col for col in numeric_cols if col in food.columns]
-	# Масштабирование отдельно для dry и wet
-	scaler = MinMaxScaler()
-	
-	for food_type in food['food_form'].dropna().unique():
-	   mask = food['food_form'] == food_type
+    # Масштабирование отдельно для dry и wet
+    scaler = MinMaxScaler()
+    
+    for food_type in food['food_form'].dropna().unique():
+       mask = food['food_form'] == food_type
        food.loc[mask, numeric_cols] = scaler.fit_transform( food.loc[mask, numeric_cols])
     food = food.rename(
     columns={"moisture":"moisture_per",
              'protein': 'protein_per',
-			 'fats': 'fats_per',
-			 'carbohydrate': 'carbohydrate_per',
-			 'calcm': 'calcium_mg',
-			 'phospohorus': 'phosphorus_mg',
-			 'potassm': 'potassium_mg',
-			 'sodm': 'sodium_mg',
-			 'magnesm': 'magnesium_mg',
-			 'iron': 'iron_mg',
-			 'copper': 'copper_mg',
-			 'zinc': 'zinc_mg',
-			 'vitamin_a': 'vitamin_a_mcg',
-			 'vitamin_c': 'vitamin_c_mg',
-			 'vitamin_d': 'vitamin_d_mcg',
-			 'vitamin_e': 'vitamin_e_mg',
-			 'vitamin_k': 'vitamin_k_mcg',
-			 'vitamin_b1': 'vitamin_b1_mg',
-			 'vitamin_b2': 'vitamin_b2_mg',
-			 'vitamin_b6': 'vitamin_b6_mg',
-			 'vitamin_b9': 'vitamin_b9_mcg',
+             'fats': 'fats_per',
+             'carbohydrate': 'carbohydrate_per',
+             'calcm': 'calcium_mg',
+             'phospohorus': 'phosphorus_mg',
+             'potassm': 'potassium_mg',
+             'sodm': 'sodium_mg',
+             'magnesm': 'magnesium_mg',
+             'iron': 'iron_mg',
+             'copper': 'copper_mg',
+             'zinc': 'zinc_mg',
+             'vitamin_a': 'vitamin_a_mcg',
+             'vitamin_c': 'vitamin_c_mg',
+             'vitamin_d': 'vitamin_d_mcg',
+             'vitamin_e': 'vitamin_e_mg',
+             'vitamin_k': 'vitamin_k_mcg',
+             'vitamin_b1': 'vitamin_b1_mg',
+             'vitamin_b2': 'vitamin_b2_mg',
+             'vitamin_b6': 'vitamin_b6_mg',
+             'vitamin_b9': 'vitamin_b9_mcg',
              'vitamin_b3':'vitamin_b3_mg',
              'vitamin_b5':'vitamin_b5_mg',
              'vitamin_b12':'vitamin_b12_mcg',
-			 'beta_carotene': 'beta_carotene_mcg',
-			 'linoleic_acid': 'linoleic_acid_g',
-			 'alpha_linolenic_acid': 'alpha_linolenic_acid_g',
-			 'epa': 'epa_g',
-			 'dha': 'dha_g'})
+             'beta_carotene': 'beta_carotene_mcg',
+             'linoleic_acid': 'linoleic_acid_g',
+             'alpha_linolenic_acid': 'alpha_linolenic_acid_g',
+             'epa': 'epa_g',
+             'dha': 'dha_g'})
     return food
 
 @st.cache_data(show_spinner=False)
 def load_data():
 
-	# --- Данные о кормах для собак и их рецептурах
+    # --- Данные о кормах для собак и их рецептурах
     conn = sqlite3.connect("data_base/pet_food.db")
     food=pd.read_sql("""SELECT name_product, description, ingredients, GROUP_CONCAT(category.category) AS category,
                         food_form.food_form,  breed_size.breed_size,  life_stage.life_stage, 
@@ -74,7 +74,7 @@ def load_data():
     food["category"] = (food["category"].astype(str).str.split(", "))
     food=prepocess_data(food)
 
-	# --- Данные о породах собак и связанных заболеваниях
+    # --- Данные о породах собак и связанных заболеваниях
     conn= sqlite3.connect("data_base/dog_breed_disease.db")
     disease = pd.read_sql("""SELECT breed_name.name_ru as name_breed,  min_weight, max_weight, disease.name_ru as name_disease, name_disorder
                              FROM breed 
@@ -83,8 +83,8 @@ def load_data():
                              INNER JOIN disease ON disease.id_disease= breed_disease.id_disease
                              INNER JOIN disease_disorder ON disease.id_disease= disease_disorder.id_disease
                              INNER JOIN disorder ON disorder.id_disorder=disease_disorder.id_disorder""", conn)
-	
-	# --- Данные для стандартизации названий ингредиентов между рецептурами кормов и общей базой ингредиентов
+    
+    # --- Данные для стандартизации названий ингредиентов между рецептурами кормов и общей базой ингредиентов
     conn=sqlite3.connect("data_base/ingredients.db")
     standart = pd.read_sql("""SELECT name_feed_ingredient,  ingredients_translation.name_ru || " — " || format_ingredients_translation.name_ru AS ingredient_full_ru, 
                               ingredient_category.name_ru as category_ru     
@@ -94,7 +94,7 @@ def load_data():
                               INNER JOIN format_ingredients_translation ON format_ingredients_translation.id_format_ingredient = ingredient.id_format_ingredient
                               INNER JOIN ingredient_category ON ingredient_category.id_category = ingredient.id_category""", conn)
     
-	# --- Данные об ингредиентах и их нутриентном составе
+    # --- Данные об ингредиентах и их нутриентном составе
     ingredirents_df =  pd.read_sql("""SELECT full_name_ingredient, ingredients_translation.name_ru as name_ingredient_ru , 
                                       format_ingredients_translation.name_ru as format_ingredient_ru, ingredient_category.name_ru as category_ru, 
                                       ingredients_translation.name_ru || " — " || format_ingredients_translation.name_ru AS ingredient_format_cat,
@@ -119,7 +119,7 @@ def load_data():
                                       INNER JOIN vitamin_a_related_compounds ON vitamin_a_related_compounds.id_ingredient=ingredient.id_ingredient
                                       INNER JOIN fatty_acids ON fatty_acids.id_ingredient=ingredient.id_ingredient""", conn)
     
-	# --- Данные для стандартизации названий нутриентов
+    # --- Данные для стандартизации названий нутриентов
     nutrients_transl= pd.read_sql("""SELECT name_in_database, name_ru FROM  nutrients_names """, conn)
 
     ingredirents_df["omega_3"] = ( ingredirents_df["epa_g"].fillna(0) + ingredirents_df["dha_g"].fillna(0) + ingredirents_df["alpha_linolenic_acid_g"].fillna(0))
