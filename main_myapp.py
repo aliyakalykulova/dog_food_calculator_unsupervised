@@ -95,11 +95,11 @@ if user_breed:
             st.session_state.show_result_1 = True
             st.session_state.show_result_2 = False
         
-        keywords = disorder_keywords.get(disorder_type, selected_disease).lower()  # --- Получение ключевых слов в зависимости от типа заболевания
+         keywords = disorder_keywords.get(disorder_type, selected_disease).lower()  # --- Получение ключевых слов в зависимости от типа заболевания
          query = f"{age_type_categ}, {breed_size} breed size, {keywords}, {disorder_type}"
-       high_nutrients, low_nutrients, ingredients= ingr_nutr_food_find(query,food_df,corpus_embeddings)
-        
-       group_results = ingredients_category_nutrient_analysis(ingredirents_df)
+         high_nutrients, low_nutrients, ingredients= ingr_nutr_food_find(query,food_df,corpus_embeddings)
+         
+         group_results = ingredients_category_nutrient_analysis(ingredirents_df)
          finish_ingr_list, finish_ingr_list_norm_name, maxim_main_nutr, minim_main_nutr = define_ingredients(high_nutrients, low_nutrients,ingredients,ingredirents_df,group_results,df_standart)
         
          
