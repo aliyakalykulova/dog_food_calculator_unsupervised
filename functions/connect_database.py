@@ -25,7 +25,7 @@ def prepocess_data(food):
     food = food.rename(
     columns={"moisture":"moisture_per",
              'protein': 'protein_per',
-             'fats': 'fats_per',
+             'fat': 'fats_per',
              'carbohydrate': 'carbohydrate_per',
              'calcium': 'calcium_mg',
              'phospohorus': 'phosphorus_mg',
