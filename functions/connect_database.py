@@ -86,7 +86,7 @@ def load_data():
                         LEFT JOIN fatty_acid fa ON df.id_dog_food = fa.id_dog_food  
                         LEFT JOIN bioactive_compounds bc ON df.id_dog_food = bc.id_dog_food  
                         GROUP BY df.id_dog_food""", conn)
-    food["category"] = (food["category"].astype(str).str.split(", "))
+    food["category"] = (food["category"].fillna("").str.split(",").apply(lambda x: [i.strip() for i in x if i.strip()]))
     food=prepocess_data(food)
 
     # --- Данные о породах собак и связанных заболеваниях
