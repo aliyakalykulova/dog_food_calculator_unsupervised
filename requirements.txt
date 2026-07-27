@@ -6,5 +6,4 @@ matplotlib
 scikit-learn 
 torch
 sentence_transformers
-sklearn
 collections
