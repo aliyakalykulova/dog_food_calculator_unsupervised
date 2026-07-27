@@ -101,8 +101,7 @@ def load_data():
     
     # --- Данные для стандартизации названий ингредиентов между рецептурами кормов и общей базой ингредиентов
     conn=sqlite3.connect("data_base/ingredients.db")
-    standart = pd.read_sql("""SELECT name_feed_ingredient,  ingredients_translation.name_ru || " — " || format_ingredients_translation.name_ru AS ingredient_full_ru, 
-                              ingredient_category.name_ru as category_ru     
+    standart = pd.read_sql("""SELECT name_feed_ingredient, full_name_ingredient, ingredient_category.name_ru as category_ru
                               FROM  ingredient_mapping
                               INNER JOIN ingredient ON ingredient.id_ingredient	= ingredient_mapping.id_ingredient
                               INNER JOIN ingredients_translation ON ingredients_translation.id_name_ingredient=ingredient.id_name_ingredient
