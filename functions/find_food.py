@@ -1,7 +1,13 @@
 import numpy as np
 import pandas as pd
 from collections import Counter
-from cluster_food import model
+
+import torch
+from sentence_transformers import SentenceTransformer, util
+from sklearn.cluster import SpectralClustering
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
 
 nutrient_cols = ['moisture_per', 'protein_per', 'fats_per',
        'carbohydrate_per', 'dha_g', 'epa_g', 'epa_dha', 'omega_3', 'omega_6',
@@ -16,6 +22,21 @@ nutrient_cols = ['moisture_per', 'protein_per', 'fats_per',
        'vitamin_b3_mg', 'vitamin_b5_mg', 'vitamin_b6_mg', 'vitamin_b7',
        'vitamin_b9_mcg', 'vitamin_b12_mcg']
 
+def cluster_food(df):
+    corpus = df["description"].fillna("").tolist()
+    corpus_embeddings = model.encode( corpus,
+                                      convert_to_tensor=True,
+                                      normalize_embeddings=True,
+                                      show_progress_bar=True)
+    X = corpus_embeddings  
+    sc = SpectralClustering( n_clusters=45,
+                             affinity="nearest_neighbors",
+                             n_neighbors=15,
+                             random_state=42 )
+    labels = sc.fit_predict(X)
+    df["spectral_cluster"] = labels
+    return df, corpus_embeddings, model
+  
 def ingredient_freq(series):
     cnt = Counter()
     for text in series.dropna():
