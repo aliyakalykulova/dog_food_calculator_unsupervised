@@ -3,8 +3,7 @@ pandas
 scipy
 numpy
 matplotlib
-scikit-learn
-collections 
+scikit-learn 
 torch
 sentence_transformers
 sklearn
