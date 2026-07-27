@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from collections import Counter
+import streamlit as st
 
 import torch
 from sentence_transformers import SentenceTransformer, util
@@ -72,6 +73,8 @@ def nutrient_cliff(high_df, low_df):
     high_nutr = []
     low_nutr = []
     for col in nutrient_cols:
+        if col not in high_df.columns:
+               st.write(high_df)
         delta = cliffs_delta(high_df[col],low_df[col])
         if delta > 0.2:
             high_nutr.append({"name": col, "effect": float(delta) })
