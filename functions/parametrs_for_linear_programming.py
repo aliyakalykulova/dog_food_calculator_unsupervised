@@ -6,11 +6,7 @@ import numpy as np
 
 main_nutrs=['moisture_per', 'protein_per', 'carbohydrate_per', 'fats_per']
 
-# ---- Функция рекомендации нутриентов для максимизации (целевая функция)
-def maximize_function(food_df, nutrient_preds):
-   df_wet = (food_df[(food_df["food_form"] == "wet food") & (food_df["moisture"] > 50)].copy()).explode("category")
-   maximize = [ i for i in main_nutrs  if nutrient_preds[i.replace("_per","")] > df_wet[i.replace("_per","")].mean()]
-   return  maximize
+
 
 # ---- Установка ограничений (min, max) на ингредиенты
 # ---- Ограничения зависят от их роли как преимущественного источника нутриента
