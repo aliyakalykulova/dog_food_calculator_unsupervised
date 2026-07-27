@@ -6,7 +6,7 @@ import numpy as np
 from functions.init_global import init_global
 from functions.connect_database import  load_data
 
-from functions.cluster_food import find_food
+from functions.find_food import  cluster_food
 from functions.define_ingredients import define_ingredients
 from functions.find_food import ingr_nutr_food_find
 from functions.find_food import ingredients_category_nutrient_analysis
@@ -15,11 +15,8 @@ from functions.choose_dog_characteristics import choose_dog_characteristics
 
 from functions.norm_kcal_nutr import kcal_calculate
 
-from functions.recommend_ingredients_nutrients import ingredient_recommendation
-from functions.recommend_ingredients_nutrients import nutrients_recommendation
 from functions.ingredients_choose import ingredients_choose  
 
-from functions.parametrs_for_linear_programming import maximize_function
 from functions.parametrs_for_linear_programming import ingredients_limits 
 from functions.parametrs_for_linear_programming import nutrients_limits 
 from functions.parametrs_for_linear_programming import lin_prog_parametrs
@@ -99,26 +96,23 @@ if user_breed:
             st.session_state.show_result_2 = False
 		  
 	     keywords = disorder_keywords.get(disorder_type, selected_disease).lower()  # --- Получение ключевых слов в зависимости от типа заболевания
-         query= age_type_categ ", " + breed_size + "breed size, "+ keywords +", "+disorder_type
-		 high_nutrients, low_nutrients, ingredients= ingr_nutr_food_find(query,df,corpus_embeddings)
+         query = f"{age_type_categ}, {breed_size} breed size, {keywords}, {disorder_type}"
+		 high_nutrients, low_nutrients, ingredients= ingr_nutr_food_find(query,food_df,corpus_embeddings)
 		  
-		 df_category_nutrients = ingredients_category_nutrient_analysis(ingredirents_df)
-         finish_ingr_list, finish_ingr_list_norm_name, maxim_main_nutr, minim_main_nutr = define_ingredients(high_nutr,low_nutr,ingr_rec,ingredirents_df)
+		 group_results = ingredients_category_nutrient_analysis(ingredirents_df)
+         finish_ingr_list, finish_ingr_list_norm_name, maxim_main_nutr, minim_main_nutr = define_ingredients(high_nutrients, low_nutrients,ingredients,ingredirents_df,group_results,df_standart)
 		  
-         ingredients_finish,keywords=ingredient_recommendation(ingredient_models,breed_size, age_type_categ,disorder_type, selected_disease,vectorizer,svd,encoder, df_standart)
-         nutrient_preds = nutrients_recommendation(vectorizer_wet,keywords,svd_wet,encoder_wet, breed_size, age_type_categ, ridge_models,scalers )
          
-         if len(ingredients_finish)>0: 
+         if len(finish_ingr_list)>0: 
 			# ---- Интерфейс для редактирования списка ингредиентов пользователем (ingredients_choose.py)
-            ingredirents_df, ingredient_names,food = ingredients_choose(ingredirents_df,ingredients_finish)
-			 
-			# ---- Выбор нутриентов для максимизации в корме (параметры линейного программирования) (parametrs_for_linear_programming.py) 
-            maximaze_nutrs = maximize_function(food_df, nutrient_preds)
+            ingredirents_df, ingredient_names,food = ingredients_choose(ingredirents_df,finish_ingr_list_norm_name)
+			selected_maximize = set(maxim_main_nutr)
+
 			 
             if ingredient_names:
 			   # ---- Установка пределов (min, max) содержания ингредиентов и нутриентов в корме (parametrs_for_linear_programming.py)
                ingr_ranges= ingredients_limits(ingredirents_df, ingredient_names)
-               nutr_ranges = nutrients_limits(nutrient_preds)
+               nutr_ranges = nutrients_limits(food_df)
 				
 			   # --- При изменении пределов содержания ингредиентов и нутриентов сбрасывается рассчитанная рецептура корма
                if ingr_ranges != st.session_state.prev_ingr_ranges:
@@ -143,7 +137,7 @@ if user_breed:
                   ingr_ranges_2=[(low, high*factor) for (low, high) in ingr_ranges]
 				
 			   # --- Подготовка параметров на основе заданных условий для расчёта рецептуры методом линейного программирования (parameters_for_linear_programming.py) 	   
-               A, b, A_eq, b_eq,selected_maximize,f,bounds = lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges_2,maximaze_nutrs,nutrients_transl)
+               A, b, A_eq, b_eq,selected_maximize,f,bounds = lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges_2,selected_maximize,nutrients_transl)
              
 			   # --- Кнопка расчёта рецептуры	
                if st.button("🔍 Рассчитать оптимальный состав"):
