@@ -139,6 +139,7 @@ def load_data():
 
     ingredirents_df["omega_3"] = ( ingredirents_df["epa_g"].fillna(0) + ingredirents_df["dha_g"].fillna(0) + ingredirents_df["alpha_linolenic_acid_g"].fillna(0))
     ingredirents_df["omega_6"] = ( ingredirents_df["linoleic_acid_g"].fillna(0) + ingredirents_df["arachidonic_acid_g"].fillna(0))
+    ingredirents_df['epa_dha'] = ingredirents_df['epa_g']*0.5 + ingredirents_df['dha_g']*0.5
 
     return food, disease, standart, ingredirents_df,nutrients_transl
   
