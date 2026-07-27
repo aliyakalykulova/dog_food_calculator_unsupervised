@@ -27,11 +27,11 @@ def prepocess_data(food):
              'protein': 'protein_per',
              'fats': 'fats_per',
              'carbohydrate': 'carbohydrate_per',
-             'calcm': 'calcium_mg',
+             'calcium': 'calcium_mg',
              'phospohorus': 'phosphorus_mg',
-             'potassm': 'potassium_mg',
-             'sodm': 'sodium_mg',
-             'magnesm': 'magnesium_mg',
+             'potassium': 'potassium_mg',
+             'sodium': 'sodium_mg',
+             'magnesium': 'magnesium_mg',
              'iron': 'iron_mg',
              'copper': 'copper_mg',
              'zinc': 'zinc_mg',
@@ -59,18 +59,33 @@ def load_data():
 
     # --- Данные о кормах для собак и их рецептурах
     conn = sqlite3.connect("data_base/pet_food.db")
-    food=pd.read_sql("""SELECT name_product, description, ingredients, GROUP_CONCAT(category.category) AS category,
-                        food_form.food_form,  breed_size.breed_size,  life_stage.life_stage, 
-                        moisture, protein, fat as fats, carbohydrate 
-                        FROM dog_food 
-                        INNER JOIN dog_food_characteristics ON dog_food_characteristics.id_dog_food = dog_food.id_dog_food 
-                        INNER JOIN breed_size ON dog_food_characteristics.id_breed_size = breed_size.id_breed_size
-                        INNER JOIN life_stage ON dog_food_characteristics.id_life_stage = life_stage.id_life_stage 
-                        INNER JOIN food_form ON dog_food_characteristics.id_food_form = food_form.id_food_form 
-                        INNER JOIN food_category_connect ON food_category_connect.id_dog_food = dog_food.id_dog_food 
-                        INNER JOIN category ON food_category_connect.id_category = category.id_category 
-                        INNER JOIN nutrient_macro ON nutrient_macro.id_dog_food = dog_food.id_dog_food 
-                        GROUP BY dog_food.id_dog_food""", conn)
+    food=pd.read_sql("""SELECT df.id_dog_food,df.source, df.name_product,df.description,   df.ingredients, bs.breed_size,  ls.life_stage, ff.food_form, dfc.flavour, GROUP_CONCAT(DISTINCT c.category) AS category,  
+                        nm.calories, nm.moisture, nm.protein, nm.fat, nm.carbohydrate, 
+                        nm.crude_fibre, nm.crude_ash, nm.soluble_fibre, nm.total_dietary_fiber, nm.insoluble_fibre, nm.starch, 
+
+                        m.calcium, m.phospohorus, m.potassium, m.sodium, m.magnesium, m.iron, m.copper, m.zinc, m.chloride, m.sulphur, 
+
+                        v.vitamin_a, v.vitamin_c, v.vitamin_d, v.vitamin_e, v.vitamin_k, v.vitamin_b1, v.vitamin_b2, v.vitamin_b3, v.vitamin_b5, 
+                        v.vitamin_b6, v.vitamin_b7, v.vitamin_b9, v.vitamin_b12, 
+
+                        fa.dha, fa.epa, fa.epa_dha, fa.omega_3, fa.omega_6, fa.linoleic_acid, fa.alpha_linolenic_acid, fa.essential_fatty_acids, 
+
+                        bc.taurine, bc.l_arginine, bc.l_lysine, bc.glutamine_glutamate, bc.dl_methionine_l_cystine, bc.bcaa_total, bc.hydroxyproline, 
+                        bc.beta_carotene, bc.l_carnitine, bc.glucosamine, bc.chondroitin_sulfate  
+
+                        FROM dog_food df  
+                        LEFT JOIN dog_food_characteristics dfc ON df.id_dog_food = dfc.id_dog_food  
+                        LEFT JOIN breed_size bs ON dfc.id_breed_size = bs.id_breed_size  
+                        LEFT JOIN life_stage ls ON dfc.id_life_stage = ls.id_life_stage  
+                        LEFT JOIN food_form ff ON dfc.id_food_form = ff.id_food_form  
+                        LEFT JOIN food_category_connect fcc ON df.id_dog_food = fcc.id_dog_food  
+                        LEFT JOIN category c ON fcc.id_category = c.id_category  
+                        LEFT JOIN nutrient_macro nm ON df.id_dog_food = nm.id_dog_food  
+                        LEFT JOIN minerals m ON df.id_dog_food = m.id_dog_food  
+                        LEFT JOIN vitamins v ON df.id_dog_food = v.id_dog_food  
+                        LEFT JOIN fatty_acid fa ON df.id_dog_food = fa.id_dog_food  
+                        LEFT JOIN bioactive_compounds bc ON df.id_dog_food = bc.id_dog_food  
+                        GROUP BY df.id_dog_food""", conn)
     food["category"] = (food["category"].astype(str).str.split(", "))
     food=prepocess_data(food)
 
