@@ -7,8 +7,11 @@ import torch
 from sentence_transformers import SentenceTransformer, util
 from sklearn.cluster import SpectralClustering
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
+@st.cache_resource
+def load_model():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    return SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2",device=device)
+model = load_model()
 
 nutrient_cols = ['moisture_per', 'protein_per', 'fats_per',
        'carbohydrate_per', 'dha_g', 'epa_g', 'epa_dha', 'omega_3', 'omega_6',
