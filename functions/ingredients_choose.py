@@ -51,7 +51,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
             for desc in regular_descs:
                label = (df_ing.loc[df_ing["format_ingredient_ru"] == desc,"full_name_ingredient"].iloc[0])
                key = f"{category}_{ingredient}_{desc}_reg"
-               text = f"{ingredient}"  
+               text = f"{ingredient_name_ru}"  
                if st.button(text, key=key):
                   st.session_state.selected_ingredients.add(label)
                   st.session_state.show_result_2 = False
