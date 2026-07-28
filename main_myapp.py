@@ -44,15 +44,14 @@ disorder_keywords = {
    "weight management":"weight management overweight",
    "food sensitivity":"food sensitivity hypoallergenic stomach"	}
 
-all_nutrs= = [
-    'moisture_per',    'protein_per',    'carbohydrate_per',    'fats_per',    'ash_g',    'fiber_g',
-    'cholesterol_mg',    'total_sugar_g',
-    'calcium_mg',    'phosphorus_mg',    'magnesium_mg',    'sodium_mg',    'potassium_mg',    'iron_mg',    'copper_mg',    'zinc_mg',    'manganese_mg',
-    'selenium_mcg',    'iodine_mcg',    'choline_mg',
-    'vitamin_a_mcg',    'vitamin_e_mg',   'vitamin_d_mcg',    'vitamin_b1_mg',    'vitamin_b2_mg',    'vitamin_b3_mg',    'vitamin_b5_mg',
-    'vitamin_b6_mg',    'vitamin_b9_mcg',    'vitamin_b12_mcg',    'vitamin_c_mg',    'vitamin_k_mcg',
-    'alpha_carotene_mcg',    'beta_carotene_mcg',    'beta_cryptoxanthin_mcg',    'lutein_zeaxanthin_mcg',    'lycopene_mcg',    'retinol_mcg',
-    'linoleic_acid_g',    'alpha_linolenic_acid_g',    'arachidonic_acid_g',    'epa_g',    'dha_g',"omega_3","omega_6"]
+all_nutrs = [ 'moisture_per',    'protein_per',    'carbohydrate_per',    'fats_per',    'ash_g',    'fiber_g',
+                'cholesterol_mg',    'total_sugar_g',
+                'calcium_mg',    'phosphorus_mg',    'magnesium_mg',    'sodium_mg',    'potassium_mg',    'iron_mg',    'copper_mg',    'zinc_mg',    'manganese_mg',
+                'selenium_mcg',    'iodine_mcg',    'choline_mg',
+                'vitamin_a_mcg',    'vitamin_e_mg',   'vitamin_d_mcg',    'vitamin_b1_mg',    'vitamin_b2_mg',    'vitamin_b3_mg',    'vitamin_b5_mg',
+                'vitamin_b6_mg',    'vitamin_b9_mcg',    'vitamin_b12_mcg',    'vitamin_c_mg',    'vitamin_k_mcg',
+                'alpha_carotene_mcg',    'beta_carotene_mcg',    'beta_cryptoxanthin_mcg',    'lutein_zeaxanthin_mcg',    'lycopene_mcg',    'retinol_mcg',
+                'linoleic_acid_g',    'alpha_linolenic_acid_g',    'arachidonic_acid_g',    'epa_g',    'dha_g',"omega_3","omega_6"]
 
 # ---- Загрузка данных из базы данных (connect_database.py)
 food_df, disease_df, df_standart, ingredirents_df,nutrients_transl= load_data()
