@@ -121,7 +121,7 @@ if user_breed:
 
             if ingredient_names:
             # ---- Установка пределов (min, max) содержания ингредиентов и нутриентов в корме (parametrs_for_linear_programming.py)
-               ingr_ranges= ingredients_limits(ingredirents_df, ingredient_names)
+               ingr_ranges= ingredients_limits(ingredirents_df, ingredient_names,finish_ingr_list)
                nutr_ranges = nutrients_limits(food_df)
             
             # --- При изменении пределов содержания ингредиентов и нутриентов сбрасывается рассчитанная рецептура корма
