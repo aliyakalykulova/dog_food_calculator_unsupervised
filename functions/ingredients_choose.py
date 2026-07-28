@@ -30,7 +30,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
                desc = unique_descs[0]
                label=ingredient
                key = f"{category}_{ingredient}_{desc}"
-               text = f"{ingredient} — {desc}" if desc != "Обыкновенный" else f"{ingredient}"  
+               text = f"{ingredient_name_ru} — {desc}" if desc != "Обыкновенный" else f"{ingredient}"  
                if st.button(text, key=key):
                   st.session_state.selected_ingredients.add(label)
                   st.session_state.show_result_2 = False
