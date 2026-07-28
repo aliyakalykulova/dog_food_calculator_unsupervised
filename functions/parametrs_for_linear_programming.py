@@ -66,9 +66,8 @@ def nutrients_limits(food_df):
    return nutr_ranges
 
 
-
 # ---- Подготовка параметров задачи линейного программирования
-def lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges,maximaze_nutrs,nutrients_transl):
+def lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges,selected_maximize):
 
    # --- Матрица A: Столбцы — ингредиенты, Строки — нутриенты, Элемент A[i, j] — содержание i-го нутриента в j-м ингредиенте
    # --- Для каждого нутриента формируются отдельные строки для min и max ограничений 
@@ -87,24 +86,7 @@ def lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges,maximaze_nu
    # --- Дополнительные ограничения: индивидуальные лимиты на каждый ингредиент (min, max)
    bounds = [(low/100, high/100) for (low, high) in ingr_ranges]
 
-   # --- Интерфейс выбора нутриента(ов) для максимизации
-   st.subheader("Что максимизировать?")
-   selected_maximize = st.multiselect(
-               "Выберите нутриенты для максимизации:",
-                [ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
-              for nutr in main_nutrs],
-                default=[ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0]  
-                       for nutr in maximaze_nutrs]  )
-   # --- Инициализация глобальной переменной списка нутриентов для максимизации
-   if "prev_selected_maximize" not in st.session_state:
-      st.session_state.prev_selected_maximize = [nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
-                                     for nutr in main_nutrs]
-   # --- При изменении списка нутриентов для максимизации сбрасывается рассчитанная рецептура 	   
-   if selected_maximize != st.session_state.prev_selected_maximize:
-      st.session_state.show_result_2 = False
-      st.session_state.prev_selected_maximize = selected_maximize.copy()
-   selected_maximize=[nutrients_transl.loc[nutrients_transl["name_ru"].str.contains(nutr, na=False),"name_in_database"].iloc[0] for nutr in selected_maximize]
 
    # --- Преобразование списка нутриентов в вектор коэффициентов целевой функции
    f = [-sum(food[i][nutr] for nutr in selected_maximize) for i in ingredient_names]
-   return A, b, A_eq, b_eq,selected_maximize,f,bounds
+   return A, b, A_eq, b_eq,f,bounds
