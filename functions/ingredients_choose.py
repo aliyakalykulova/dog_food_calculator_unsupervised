@@ -38,7 +38,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
 
 			# --- Для ингредиентов с несколькими разновидностями создаётся вложенный список выбора
             elif non_regular_descs:
-               with st.expander(f"{ingredient}"):           # --- подчасть ингредиента или его разновидность
+               with st.expander(f"{ingredient_name_ru}"):           # --- подчасть ингредиента или его разновидность
                   for desc in non_regular_descs:
                      label = (df_ing.loc[df_ing["format_ingredient_ru"] == desc,"full_name_ingredient"].iloc[0])
                      key = f"{category}_{ingredient}_{desc}"
