@@ -15,7 +15,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
    for category in ingredirents_df['category_ru'].dropna().unique():    # --- Основные категории (мясо, крупы, жиры и др.)
       with st.expander(f"{category}"):                                   
          df_cat = ingredirents_df[ingredirents_df['category_ru'] == category]
-         for ingredient in df_cat['full_name_ingredient'].dropna().unique():   # --- Ингредиенты внутри категории
+         for ingredient in df_cat['name_ingredient_ru'].dropna().unique():   # --- Ингредиенты внутри категории
             ingredient_name_ru = (df_cat.loc[df_cat["full_name_ingredient"] == ingredient,"name_ingredient_ru"].iloc[0])
 
             df_ing = df_cat[df_cat['name_ingredient_ru'] == ingredient_name_ru]
