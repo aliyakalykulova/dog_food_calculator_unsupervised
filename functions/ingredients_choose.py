@@ -3,14 +3,6 @@ import pandas as pd
 
 # ---- Интерфейс выбора ингредиентов пользователем для корректировки состава корма
 
-all_nutrs=['moisture_per', 'protein_per', 'carbohydrate_per', 'fats_per',
-		   'ash_g', 'fiber_g', 'cholesterol_mg', 'total_sugar_g',
-           'choline_mg', 'selenium_mcg', 'iodine_mcg', 'linoleic_acid_g','alpha_linolenic_acid_g', 'arachidonic_acid_g', 'epa_g', 'dha_g',
-           'calcium_mg', 'phosphorus_mg', 'magnesium_mg', 'sodium_mg', 'potassium_mg', 'iron_mg', 'copper_mg', 'zinc_mg', 'manganese_mg',
-           'vitamin_a_mcg', 'vitamin_e_mg', 'vitamin_d_mcg', 'vitamin_b1_mg', 'vitamin_b2_mg', 'vitamin_b3_mg', 'vitamin_b5_mg', 
-		   'vitamin_b6_mg', 'vitamin_b9_mcg', 'vitamin_b12_mcg', 'vitamin_c_mg', 'vitamin_k_mcg']
-
-
 def ingredients_choose(ingredirents_df,finish_ingr_list):
 
    # --- Список заполняется рекомендованными ингредиентами	
