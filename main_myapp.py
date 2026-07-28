@@ -44,6 +44,15 @@ disorder_keywords = {
    "weight management":"weight management overweight",
    "food sensitivity":"food sensitivity hypoallergenic stomach"	}
 
+all_nutrs= = [
+    'moisture_per',    'protein_per',    'carbohydrate_per',    'fats_per',    'ash_g',    'fiber_g',
+    'cholesterol_mg',    'total_sugar_g',
+    'calcium_mg',    'phosphorus_mg',    'magnesium_mg',    'sodium_mg',    'potassium_mg',    'iron_mg',    'copper_mg',    'zinc_mg',    'manganese_mg',
+    'selenium_mcg',    'iodine_mcg',    'choline_mg',
+    'vitamin_a_mcg',    'vitamin_e_mg',   'vitamin_d_mcg',    'vitamin_b1_mg',    'vitamin_b2_mg',    'vitamin_b3_mg',    'vitamin_b5_mg',
+    'vitamin_b6_mg',    'vitamin_b9_mcg',    'vitamin_b12_mcg',    'vitamin_c_mg',    'vitamin_k_mcg',
+    'alpha_carotene_mcg',    'beta_carotene_mcg',    'beta_cryptoxanthin_mcg',    'lutein_zeaxanthin_mcg',    'lycopene_mcg',    'retinol_mcg',
+    'linoleic_acid_g',    'alpha_linolenic_acid_g',    'arachidonic_acid_g',    'epa_g',    'dha_g',"omega_3","omega_6"]
 
 # ---- Загрузка данных из базы данных (connect_database.py)
 food_df, disease_df, df_standart, ingredirents_df,nutrients_transl= load_data()
@@ -105,10 +114,12 @@ if user_breed:
          
          if len(finish_ingr_list)>0: 
          # ---- Интерфейс для редактирования списка ингредиентов пользователем (ingredients_choose.py)
-            ingredient_names,food = ingredients_choose(ingredirents_df,finish_ingr_list_norm_name,finish_ingr_list)
+            ingredient_names = ingredients_choose(ingredirents_df,finish_ingr_list)
+            # --- Создание словаря нутриентного профиля выбранных ингредиентов. Ключ словаря: "ингредиент — разновидность"
+            food = ingredirents_df.set_index("full_name_ingredient")[all_nutrs].to_dict(orient='index') 
             selected_maximize = set(maxim_main_nutr)
 
-          
+
             if ingredient_names:
             # ---- Установка пределов (min, max) содержания ингредиентов и нутриентов в корме (parametrs_for_linear_programming.py)
                ingr_ranges= ingredients_limits(ingredirents_df, ingredient_names)
@@ -121,31 +132,47 @@ if user_breed:
                if nutr_ranges != st.session_state.prev_nutr_ranges:
                   st.session_state.show_result_2 = False
                   st.session_state.prev_nutr_ranges = nutr_ranges.copy()
-     
-            # ---- Проверка соотношения ингредиентов и пропорциональная корректировка минимальных и максимальных пределов при нарушении условий
-            # ---- Проверка условия: сумма минимальных долей ингредиентов < 100, сумма максимальных долей > 100
-               lowest=sum([low for (low, high) in ingr_ranges])
-               highest=sum([high for (low, high) in ingr_ranges])
-               ingr_ranges_2=ingr_ranges
-               if lowest>100:
-                  st.write("Минимальные доли ингредиентов превышают 100%. Значения были пропорционально уменьшены.")
-                  factor=99/lowest
-                  ingr_ranges_2=[(low*factor, high) for (low, high) in ingr_ranges]
-               elif highest<100:
-                  st.write("Максимальные доли ингредиентов меньше 100%. Значения были пропорционально увеличены.")
-                  factor=101/highest
-                  ingr_ranges_2=[(low, high*factor) for (low, high) in ingr_ranges]
-            
-            # --- Подготовка параметров на основе заданных условий для расчёта рецептуры методом линейного программирования (parameters_for_linear_programming.py) 	   
-               A, b, A_eq, b_eq,selected_maximize,f,bounds = lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges_2,selected_maximize,nutrients_transl)
-             
+               # --- Интерфейс выбора нутриента(ов) для максимизации
+               st.subheader("Что максимизировать?")
+               selected_maximize = st.multiselect( "Выберите нутриенты для максимизации:",
+                                                     [ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
+                                                       for nutr in main_nutrs],
+                                                     default=[ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0]  
+                                                    for nutr in maximaze_nutrs]  )
+               # --- Инициализация глобальной переменной списка нутриентов для максимизации
+               if "prev_selected_maximize" not in st.session_state:
+                     st.session_state.prev_selected_maximize = [nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
+                                     for nutr in main_nutrs]
+               # --- При изменении списка нутриентов для максимизации сбрасывается рассчитанная рецептура 	   
+               if selected_maximize != st.session_state.prev_selected_maximize:
+                     st.session_state.show_result_2 = False
+                     st.session_state.prev_selected_maximize = selected_maximize.copy()
+               selected_maximize=[nutrients_transl.loc[nutrients_transl["name_ru"].str.contains(nutr, na=False),"name_in_database"].iloc[0] for nutr in selected_maximize]
+
+          
             # --- Кнопка расчёта рецептуры	
                if st.button("🔍 Рассчитать оптимальный состав"):
                   st.session_state.show_result_2 = True
-
          
                if st.session_state.show_result_2:
-              # --- Расчёт рецептуры методом линейного программирования
+                  # ---- Проверка соотношения ингредиентов и пропорциональная корректировка минимальных и максимальных пределов при нарушении условий
+                  # ---- Проверка условия: сумма минимальных долей ингредиентов < 100, сумма максимальных долей > 100
+                  lowest=sum([low for (low, high) in ingr_ranges])
+                  highest=sum([high for (low, high) in ingr_ranges])
+                  ingr_ranges_2=ingr_ranges
+                  if lowest>100:
+                    st.write("Минимальные доли ингредиентов превышают 100%. Значения были пропорционально уменьшены.")
+                    factor=99/lowest
+                    ingr_ranges_2=[(low*factor, high) for (low, high) in ingr_ranges]
+                  elif highest<100:
+                    st.write("Максимальные доли ингредиентов меньше 100%. Значения были пропорционально увеличены.")
+                    factor=101/highest
+                    ingr_ranges_2=[(low, high*factor) for (low, high) in ingr_ranges]
+            
+                  # --- Подготовка параметров на основе заданных условий для расчёта рецептуры методом линейного программирования (parameters_for_linear_programming.py) 	   
+                  A, b, A_eq, b_eq,f,bounds = lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges_2,selected_maximize,ingredirents_df)
+             
+                  # --- Расчёт рецептуры методом линейного программирования
                   res = linprog(f, A_ub=A, b_ub=b, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
 
               # --- Если решение найдено методом линейного программирования  
@@ -160,7 +187,7 @@ if user_breed:
 
                 # ---- Отображение результатов (show_results.py)
                      show_resuts_success(best_recipe,food,nutrients_transl,metobolic_energy, age_type_categ,
-                                        ingredient_names, ingr_ranges,nutr_ranges)                         
+                                        ingredient_names, ingr_ranges,nutr_ranges,ingredirents_df)                         
                   else:
                 # ---- Если решение не найдено, используется комбинаторный метод
                 # ---- Расчёт рецептуры комбинаторным методом с выбором варианта с минимальным отклонением от нутриентных лимитов (calc_recipe_method_2.py)	 
@@ -169,7 +196,7 @@ if user_breed:
                         st.success("⚙️ Найден состав перебором:")
                    # ---- Отображение результатов (show_results.py)
                         show_resuts_success(best_recipe, food, nutrients_transl, metobolic_energy, age_type_categ,
-                                            ingredient_names, ingr_ranges,nutr_ranges)
+                                            ingredient_names, ingr_ranges,nutr_ranges,ingredirents_df)
                      else:
                         st.error("🚫 Измените соотношение ингредиентов и/или нутриентов")
          else:
