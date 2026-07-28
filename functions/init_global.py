@@ -43,8 +43,8 @@ def init_global():
    if "prev_nutr_ranges" not in st.session_state:
       st.session_state.prev_nutr_ranges = {}     # --- Соотношение нутриентов
 	   
-   if "selected_ingredients" not in st.session_state:
-      st.session_state.selected_ingredients = set()         # --- Список ингредиентов
+   if "selected_ingredients_ru" not in st.session_state:
+      st.session_state.selected_ingredients_ru = set()         # --- Список ингредиентов
    if st.session_state.show_result_1 == False: 
-      st.session_state.selected_ingredients = set()
+      st.session_state.selected_ingredients_ru = set()
 		
