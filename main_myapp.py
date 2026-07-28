@@ -133,11 +133,13 @@ if user_breed:
                   st.session_state.prev_nutr_ranges = nutr_ranges.copy()
                # --- Интерфейс выбора нутриента(ов) для максимизации
                st.subheader("Что максимизировать?")
+               st.write(selected_maximize)
+               st.write(nutrients_transl)
                selected_maximize = st.multiselect( "Выберите нутриенты для максимизации:",
                                                      [ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
                                                        for nutr in main_nutrs],
                                                      default=[ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0]  
-                                                    for nutr in maximaze_nutrs]  )
+                                                    for nutr in selected_maximize]  )
                # --- Инициализация глобальной переменной списка нутриентов для максимизации
                if "prev_selected_maximize" not in st.session_state:
                      st.session_state.prev_selected_maximize = [nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
