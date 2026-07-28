@@ -105,7 +105,7 @@ if user_breed:
          
          if len(finish_ingr_list)>0: 
          # ---- Интерфейс для редактирования списка ингредиентов пользователем (ingredients_choose.py)
-            ingredirents_df, ingredient_names,food = ingredients_choose(ingredirents_df,finish_ingr_list_norm_name)
+            ingredirents_df, ingredient_names,food = ingredients_choose(ingredirents_df,finish_ingr_list_norm_name,finish_ingr_list)
             selected_maximize = set(maxim_main_nutr)
 
           
