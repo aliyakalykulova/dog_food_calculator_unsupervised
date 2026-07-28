@@ -133,8 +133,7 @@ if user_breed:
                   st.session_state.prev_nutr_ranges = nutr_ranges.copy()
                # --- Интерфейс выбора нутриента(ов) для максимизации
                st.subheader("Что максимизировать?")
-               st.write(selected_maximize)
-               st.write(nutrients_transl)
+
                selected_maximize = st.multiselect( "Выберите нутриенты для максимизации:",
                                                      [ nutrients_transl.loc[nutrients_transl["name_in_database"] == nutr,"name_ru"].iloc[0].split(",")[0] 
                                                        for nutr in main_nutrs],
@@ -169,9 +168,9 @@ if user_breed:
                     st.write("Максимальные доли ингредиентов меньше 100%. Значения были пропорционально увеличены.")
                     factor=101/highest
                     ingr_ranges_2=[(low, high*factor) for (low, high) in ingr_ranges]
-            
+       
                   # --- Подготовка параметров на основе заданных условий для расчёта рецептуры методом линейного программирования (parameters_for_linear_programming.py) 	   
-                  A, b, A_eq, b_eq,f,bounds = lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges_2,selected_maximize,ingredirents_df)
+                  A, b, A_eq, b_eq,f,bounds = lin_prog_parametrs(food,ingredient_names,nutr_ranges,ingr_ranges_2,selected_maximize)
              
                   # --- Расчёт рецептуры методом линейного программирования
                   res = linprog(f, A_ub=A, b_ub=b, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
