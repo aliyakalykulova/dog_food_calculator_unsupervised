@@ -38,7 +38,7 @@ def ingredients_limits(ingredirents_df, ingredient_names,finish_ingr_list):
          ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (5,25)))
       elif "WATER" in ingr:
          ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (0,30)))
-      elif ingr in other:
+      else:
          ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (1,3)))
    return ingr_ranges
 
