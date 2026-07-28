@@ -28,7 +28,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
             if len(unique_descs) == 1 and unique_descs[0].lower() != "обыкновенный":
                desc = unique_descs[0]
                label= (df_ing.loc[df_ing["format_ingredient_ru"] == desc,"full_name_ingredient"].iloc[0])
-               key = f"{category}_{ingredient}_{desc}"
+               key = f"{category}_{ingredient_name_ru}_{desc}"
                text = f"{ingredient_name_ru} — {desc}" if desc != "Обыкновенный" else f"{ingredient}"  
                if st.button(text, key=key):
                   st.session_state.selected_ingredients.add(label)
@@ -40,7 +40,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
                with st.expander(f"{ingredient_name_ru}"):           # --- подчасть ингредиента или его разновидность
                   for desc in non_regular_descs:
                      label = (df_ing.loc[df_ing["format_ingredient_ru"] == desc,"full_name_ingredient"].iloc[0])
-                     key = f"{category}_{ingredient}_{desc}"
+                     key = f"{category}_{ingredient_name_ru}_{desc}"
                      if st.button(f"{desc}", key=key):
                         st.session_state.selected_ingredients.add(label)
                         st.session_state.show_result_2 = False
@@ -49,7 +49,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
             regular_descs = [desc for desc in unique_descs if desc.lower() == "обыкновенный"]
             for desc in regular_descs:
                label = (df_ing.loc[df_ing["format_ingredient_ru"] == desc,"full_name_ingredient"].iloc[0])
-               key = f"{category}_{ingredient}_{desc}_reg"
+               key = f"{category}_{ingredient_name_ru}_{desc}_reg"
                text = f"{ingredient_name_ru}"  
                if st.button(text, key=key):
                   st.session_state.selected_ingredients.add(label)
