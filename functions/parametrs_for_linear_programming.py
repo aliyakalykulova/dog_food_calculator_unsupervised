@@ -14,7 +14,8 @@ main_nutrs=['moisture_per', 'protein_per', 'carbohydrate_per', 'fats_per']
 def ingredients_limits(ingredirents_df, ingredient_names):
    st.subheader("🌿 Рекомендуемые ингредиенты")
    for ing in ingredient_names:
-      st.write("• " + ing.replace("— Обыкновенный",""))
+      ing_ru=(ingredirents_df.loc[ingredirents_df["full_name_ingredient"] == ing,"ingredient_format_cat"].iloc[0])
+      st.write("• " + ing_ru.replace("— Обыкновенный",""))
       
    proteins=ingredirents_df[ingredirents_df["category_ru"].isin(["Яйца и молочные продукты", "Мясо"])]["full_name_ingredient"].tolist()
    oils=ingredirents_df[ingredirents_df["category_ru"].isin([ "Масло и жир"])]["full_name_ingredient"].tolist()
@@ -26,18 +27,19 @@ def ingredients_limits(ingredirents_df, ingredient_names):
    st.subheader("Ограничения по количеству ингредиентов (в % от 100 г):")
    ingr_ranges = []
    for ingr in ingredient_names:
+      ingr_ru=(ingredirents_df.loc[ingredirents_df["full_name_ingredient"] == ingr,"ingredient_format_cat"].iloc[0])
       if ingr in proteins:
-         ingr_ranges.append(st.slider(f"{ingr.replace(" — Обыкновенный", "")}", 0, 100, (50,90)))
+         ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (50,90)))
       elif ingr in oils:
-         ingr_ranges.append(st.slider(f"{ingr.replace(" — Обыкновенный", "")}", 0, 100, (1,10)))
+         ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (1,10)))
       elif ingr in carbonates_cer:
-         ingr_ranges.append(st.slider(f"{ingr.replace(" — Обыкновенный", "")}", 0, 100, (5,35)))
+         ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (5,35)))
       elif ingr in carbonates_veg:
-         ingr_ranges.append(st.slider(f"{ingr.replace(" — Обыкновенный", "")}", 0, 100, (5,25)))
+         ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (5,25)))
       elif "WATER" in ingr:
-         ingr_ranges.append(st.slider(f"{ingr.replace(" — Обыкновенный", "")}", 0, 100, (0,30)))
+         ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (0,30)))
       elif ingr in other:
-         ingr_ranges.append(st.slider(f"{ingr.replace(" — Обыкновенный", "")}", 0, 100, (1,3)))
+         ingr_ranges.append(st.slider(f"{ingr_ru.replace(" — Обыкновенный", "")}", 0, 100, (1,3)))
    return ingr_ranges
 
 
