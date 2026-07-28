@@ -15,9 +15,8 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
    for category in ingredirents_df['category_ru'].dropna().unique():    # --- Основные категории (мясо, крупы, жиры и др.)
       with st.expander(f"{category}"):                                   
          df_cat = ingredirents_df[ingredirents_df['category_ru'] == category]
-         for ingredient in df_cat['name_ingredient_ru'].dropna().unique():   # --- Ингредиенты внутри категории
-            ingredient_name_ru = (df_cat.loc[df_cat["full_name_ingredient"] == ingredient,"name_ingredient_ru"].iloc[0])
-
+         for ingredient_name_ru in df_cat['name_ingredient_ru'].dropna().unique():   # --- Ингредиенты внутри категории
+			 
             df_ing = df_cat[df_cat['name_ingredient_ru'] == ingredient_name_ru]
             unique_descs = df_ing['format_ingredient_ru'].dropna().unique()
 			 
@@ -28,7 +27,7 @@ def ingredients_choose(ingredirents_df,finish_ingr_list):
 			# --- Для ингредиентов с одной разновидностью создаётся отдельная кнопка выбора
             if len(unique_descs) == 1 and unique_descs[0].lower() != "обыкновенный":
                desc = unique_descs[0]
-               label=ingredient
+               label= (df_ing.loc[df_ing["format_ingredient_ru"] == desc,"full_name_ingredient"].iloc[0])
                key = f"{category}_{ingredient}_{desc}"
                text = f"{ingredient_name_ru} — {desc}" if desc != "Обыкновенный" else f"{ingredient}"  
                if st.button(text, key=key):
