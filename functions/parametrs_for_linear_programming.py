@@ -11,9 +11,9 @@ main_nutrs=['moisture_per', 'protein_per', 'carbohydrate_per', 'fats_per']
 # ---- Установка ограничений (min, max) на ингредиенты
 # ---- Ограничения зависят от их роли как преимущественного источника нутриента
 # ---- Отображение ограничений в виде ползунков (пользователь может корректировать вручную)
-def ingredients_limits(ingredirents_df, ingredient_names):
+def ingredients_limits(ingredirents_df, ingredient_names,finish_ingr_list):
    st.subheader("🌿 Рекомендуемые ингредиенты")
-   for ing in ingredient_names:
+   for ing in finish_ingr_list:
       ing_ru=(ingredirents_df.loc[ingredirents_df["full_name_ingredient"] == ing,"ingredient_format_cat"].iloc[0])
       st.write("• " + ing_ru.replace("— Обыкновенный",""))
       
