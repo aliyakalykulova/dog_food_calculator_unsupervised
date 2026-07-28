@@ -106,14 +106,18 @@ def show_nutr_content(count_all_nutr, nutrients_transl, kkal_sel, age_type_categ
             st.write(f"**{name_n[0]}:** {round(diff,2)} {emg}")
                                         
 # ---- Вывод графика сравнения установленных пользователем лимитов и содержания ингредиентов и нутриентов в рассчитанной рецептуре
-def show_figures_ingr_nutr(ingr_ranges, nutr_ranges, ingredients_combo, nutrients_combo, nutrients_transl):
+def show_figures_ingr_nutr(ingr_ranges, nutr_ranges, ingredients_combo, nutrients_combo, nutrients_transl,ingredirents_df):
    # --- График для ингредиентов     
    ingredient_names = list(ingredients_combo.keys())
    fig1, ax1 = plt.subplots(figsize=(10, 6))
    ingr_vals = [ingredients_combo[i] for i in ingredient_names]
    ingr_lims = ingr_ranges
-   wrapped_ingredients = [  '\n'.join(textwrap.wrap(label.replace(" — Обыкновенный", ""), 10))
-                             for label in ingredient_names]
+   wrapped_ingredients=[]
+   for label in ingredient_names:
+         label_ru=(ingredirents_df.loc[ingredirents_df["full_name_ingredient"] == label,"ingredient_format_cat"].iloc[0]) 
+         wrapped_ingredients.append('\n'.join(textwrap.wrap(label_ru.replace(" — Обыкновенный", ""), 10)))    
+    
+                             
 
    for i, (val, (low, high)) in enumerate(zip(ingr_vals, ingr_lims)):
       if i == 0:
@@ -157,7 +161,7 @@ def show_figures_ingr_nutr(ingr_ranges, nutr_ranges, ingredients_combo, nutrient
    st.pyplot(fig2)
 
 # ---- Вывод рассчитанной рецептуры: соотношение количества ингредиентов и содержания основных нутриентов
-def show_resuts_success(best_recipe,food,nutrients_transl,metobolic_energy, age_type_categ, ingredient_names, ingr_ranges,nutr_ranges):
+def show_resuts_success(best_recipe,food,nutrients_transl,metobolic_energy, age_type_categ, ingredient_names, ingr_ranges,nutr_ranges,ingredirents_df):
    kkal_sel = st.session_state.kkal_sel
    weight_sel = st.session_state.weight_sel
    select_reproductive_status = st.session_state.select_reproductive_status
@@ -167,7 +171,8 @@ def show_resuts_success(best_recipe,food,nutrients_transl,metobolic_energy, age_
    st.markdown("### 📦 Состав (в граммах на 100 г):")
    for ingredient, value in ingredients_combo.items():
       if int(round(value,0))!=0:
-         st.write(f"{ingredient.replace(" — Обыкновенный", "")}: **{int(round(value,0))} г**")
+         ingredient_ru= (ingredirents_df.loc[ingredirents_df["full_name_ingredient"] == ingredient,"ingredient_format_cat"].iloc[0])      
+         st.write(f"{ingredient_ru.replace(" — Обыкновенный", "")}: **{int(round(value,0))} г**")
            
    st.markdown("### 💪 Питательная ценность на 100 г:")
    for nutrient, value in nutrients_combo.items():
@@ -204,7 +209,8 @@ def show_resuts_success(best_recipe,food,nutrients_transl,metobolic_energy, age_
    st.write("🧾 Количество ингредиентов для этой порции:")
    for ingredient, value in ingredients_required.items():
       if int(round(value,0))!=0:
-         st.write(f" - {ingredient.replace(" — Обыкновенный", "")}: {value} г")
+         ingredient_ru= (ingredirents_df.loc[ingredirents_df["full_name_ingredient"] == ingredient,"ingredient_format_cat"].iloc[0])          
+         st.write(f" - {ingredient_ru.replace(" — Обыкновенный", "")}: {value} г")
          
    count_all_nutr = {nutr: round(sum(amount * food[ingredient][nutr]/100 for ingredient, amount in ingredients_required.items()), 2)
                                 for nutr in main_nutrs+other_nutrients+major_minerals+vitamins}
@@ -218,5 +224,5 @@ def show_resuts_success(best_recipe,food,nutrients_transl,metobolic_energy, age_
    # ---  Вывод содержания нутриентов в рассчитанной рецептуре на дневную порцию    
    st.write(f"****") 
    show_nutr_content(count_all_nutr, nutrients_transl, kkal_sel, age_type_categ, weight_sel, select_reproductive_status)
-   show_figures_ingr_nutr(ingr_ranges, nutr_ranges, ingredients_combo, nutrients_combo, nutrients_transl)
+   show_figures_ingr_nutr(ingr_ranges, nutr_ranges, ingredients_combo, nutrients_combo, nutrients_transl,ingredirents_df)
 
